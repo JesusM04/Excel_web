@@ -1,0 +1,15 @@
+{
+  "name": "excel-web",
+  "version": "1.0.0",
+  "description": "Una aplicación web para manipular archivos Excel",
+  "main": "index.html",
+  "dependencies": {
+    "xlsx": "^0.17.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "author": "",
+  "license": "ISC"
+}
