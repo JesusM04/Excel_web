@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combinador de Archivos Excel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+    <style>
+        /* Estilo general */
+        body {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    padding: 20px;
+    background: #f0f0f3;
+    color: #333;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff;
+}
+
+/* Inputs y botones */
+input, button {
+    margin: 10px;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Botones estilo neumorfismo */
+button {
+    background: linear-gradient(145deg, #e2e8ec, #ffffff);
+    box-shadow: 6px 6px 12px #c1c8d2, -6px -6px 12px #ffffff;
+    color: #333;
+    font-weight: bold;
+}
+
+button:active {
+    box-shadow: inset 4px 4px 8px #c1c8d2, inset -4px -4px 8px #ffffff;
+}
+
+/* Archivo seleccionado */
+#listaArchivos {
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 10px;
+    background: #ffffff;
+    box-shadow: inset 6px 6px 12px #d1d9e6, inset -6px -6px 12px #ffffff;
+    margin-top: 10px;
+}
+
+#listaArchivos::-webkit-scrollbar {
+    width: 8px;
+}
+
+#listaArchivos::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+#listaArchivos::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* Estilo de cada archivo */
+.archivo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: #ffffff;
+    margin: 5px 0;
+    border-radius: 10px;
+    box-shadow: 4px 4px 8px #d1d9e6, -4px -4px 8px #ffffff;
+}
+
+/* Botón de eliminar archivo */
+.archivo-item button {
+    background: linear-gradient(145deg, #ff6b6b, #ff8787);
+    box-shadow: 4px 4px 8px #d84141, -4px -4px 8px #ffb3b3;
+    color: white;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.archivo-item button:active {
+    box-shadow: inset 4px 4px 8px #d84141, inset -4px -4px 8px #ffb3b3;
+}
+
+#contadorArchivos {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Estilo para el input de tipo número */
+#numHojas {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#numHojas:focus {
+    border-color: #3498db;
+    background-color: #fff;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    outline: none;
+}
+
+/* Ocultar el input original */
+#fileInput {
+    display: none;
+}
+
+/* Botón personalizado */
+.file-label {
+    display: inline-block;
+    background: linear-gradient(145deg, #e2e8ec, #ffffff);
+    box-shadow: 6px 6px 12px #c1c8d2, -6px -6px 12px #ffffff;
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-label:active {
+    box-shadow: inset 4px 4px 8px #c1c8d2, inset -4px -4px 8px #ffffff;
+}
+
+/* Mostrar nombre del archivo seleccionado */
+#file-name {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* --- Estilos responsive --- */
+
+/* Para dispositivos pequeños como teléfonos */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        width: 100%; /* Ocupa todo el ancho disponible en pantallas pequeñas */
+        padding: 15px;
+    }
+
+    input, button {
+        width: 100%; /* Hacer que los inputs y botones ocupen todo el ancho disponible */
+        font-size: 14px;
+    }
+
+    #numHojas {
+        width: 80px; /* Ajustar el ancho de #numHojas para pantallas más pequeñas */
+    }
+
+    .archivo-item {
+        font-size: 14px; /* Reducir tamaño de texto en los items */
+    }
+
+    #listaArchivos {
+        max-height: 150px; /* Reducir la altura máxima del listado de archivos */
+    }
+
+    .file-label {
+        width: 100%; /* Hacer que el botón de seleccionar archivo ocupe todo el ancho */
+        padding: 14px;
+    }
+}
+
+/* Para tabletas (entre 600px y 900px) */
+@media (min-width: 601px) and (max-width: 900px) {
+    .container {
+        width: 90%; /* Usar el 90% del ancho disponible */
+    }
+
+    input, button {
+        width: 100%; /* Hacer que los inputs y botones ocupen todo el ancho disponible */
+    }
+
+    #numHojas {
+        width: 100px; /* Ajustar el ancho de #numHojas */
+    }
+
+    .file-label {
+        width: 100%; /* Hacer que el botón de seleccionar archivo ocupe todo el ancho */
+    }
+}
+
+/* Para pantallas de escritorio grandes */
+@media (min-width: 901px) {
+    .container {
+        width: 60%; /* Limitar el ancho de la caja del contenedor */
+    }
+
+    input, button {
+        width: auto; /* Los inputs y botones vuelven a tener su tamaño natural */
+    }
+
+    #numHojas {
+        width: 50px; /* Tamaño original para pantallas grandes */
+    }
+}
+
+</style>
+    
+</head>
+<body>
+    <div class="container">
+        <h2>Combinador de Archivos Excel</h2>
+        
+        <label>Número de hojas a unir:</label>
+        <input type="number" id="numHojas" min="1">
+        <button id="confirmarHojas">Confirmar</button>
+        
+        <br>
+        <!-- <input type="file" id="fileInput" accept=".xlsx" disabled> -->
+        <label for="fileInput" class="file-label">📂 Elegir Archivo</label>
+        <input type="file" id="fileInput" accept=".xlsx" multiple>
+        <p id="contadorArchivos">Archivos seleccionados: 0</p>
+        <div id="listaArchivos"></div>
+
+        <br>
+        <button id="combinar" disabled>Combinar Archivos</button>
+        <p id="mensaje"></p>
+    </div>
+
+    <script>
+        let numHojas = 0;
+        let archivosSeleccionados = [];
+
+        document.getElementById("confirmarHojas").addEventListener("click", function() {
+            numHojas = parseInt(document.getElementById("numHojas").value);
+            if (numHojas < 1 || isNaN(numHojas)) {
+                alert("Ingrese un número válido de hojas.");
+                return;
+            }
+            archivosSeleccionados = [];
+            document.getElementById("fileInput").disabled = false;
+            document.getElementById("contadorArchivos").innerText = `Archivos seleccionados: 0/${numHojas}`;
+            document.getElementById("listaArchivos").innerHTML = "";
+        });
+
+        document.getElementById("fileInput").addEventListener("change", function(event) {
+            let files = Array.from(event.target.files);
+            
+            files.forEach(file => {
+                if (archivosSeleccionados.length < numHojas) {
+                    archivosSeleccionados.push(file);
+                }
+            });
+
+            actualizarListaArchivos();
+
+            if (archivosSeleccionados.length === numHojas) {
+                document.getElementById("combinar").disabled = false;
+            }
+        });
+
+        function actualizarListaArchivos() {
+            let listaArchivosDiv = document.getElementById("listaArchivos");
+            listaArchivosDiv.innerHTML = archivosSeleccionados
+                .map((file, index) => `
+                    <div class="archivo-item">
+                        <span>${index + 1}. ${file.name}</span>
+                        <button onclick="eliminarArchivo(${index})">X</button>
+                    </div>
+                `)
+                .join("");
+
+            document.getElementById("contadorArchivos").innerText = `Archivos seleccionados: ${archivosSeleccionados.length}/${numHojas}`;
+
+            document.getElementById("combinar").disabled = archivosSeleccionados.length !== numHojas;
+        }
+
+        function eliminarArchivo(index) {
+            archivosSeleccionados.splice(index, 1);
+            actualizarListaArchivos();
+        }
+
+        document.getElementById("combinar").addEventListener("click", function() {
+            if (archivosSeleccionados.length < numHojas) {
+                document.getElementById("mensaje").innerText = "Faltan archivos para combinar.";
+                return;
+            }
+
+            alert("A continuación, indique el directorio de destino.");
+
+            let dataFrames = [];
+            let readerPromises = [];
+
+            archivosSeleccionados.forEach((file, index) => {
+                let reader = new FileReader();
+                readerPromises.push(new Promise((resolve, reject) => {
+                    reader.onload = function(e) {
+                        let workbook = XLSX.read(e.target.result, { type: 'binary' });
+                        let sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        let jsonData = XLSX.utils.sheet_to_json(sheet);
+                        dataFrames.push({ index, data: jsonData });
+                        resolve();
+                    };
+                    reader.onerror = reject;
+                    reader.readAsBinaryString(file);
+                }));
+            });
+
+            Promise.all(readerPromises).then(() => {
+                dataFrames.sort((a, b) => a.index - b.index);
+                let combinedData = [];
+                let minRows = Math.min(...dataFrames.map(df => df.data.length));
+
+                for (let i = 0; i < minRows; i++) {
+                    let row = {};
+                    dataFrames.forEach((df, idx) => {
+                        let rowData = df.data[i] || {};
+                        Object.keys(rowData).forEach(key => {
+                            let newKey = idx > 0 ? `${key}` : key;
+                            row[newKey] = rowData[key];
+                        });
+                    });
+                    combinedData.push(row);
+                }
+
+                let newSheet = XLSX.utils.json_to_sheet(combinedData);
+                let newWorkbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(newWorkbook, newSheet, "Combinado");
+                XLSX.writeFile(newWorkbook, "archivo_combinado.xlsx");
+
+                document.getElementById("mensaje").innerText = "¡Archivo combinado guardado!";
+            }).catch(error => {
+                document.getElementById("mensaje").innerText = "Error al procesar archivos: " + error;
+            });
+        });
+
+    </script>
+</body>
+</html>
